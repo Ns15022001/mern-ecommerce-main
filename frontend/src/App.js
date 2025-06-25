@@ -3,11 +3,13 @@ import {
   Navigate,
   Route, RouterProvider, createBrowserRouter, createRoutesFromElements
 } from "react-router-dom";
+
 import { selectIsAuthChecked, selectLoggedInUser } from './features/auth/AuthSlice';
 import { Logout } from './features/auth/components/Logout';
 import { Protected } from './features/auth/components/Protected';
 import { useAuthCheck } from "./hooks/useAuth/useAuthCheck";
 import { useFetchLoggedInUserDetails } from "./hooks/useAuth/useFetchLoggedInUserDetails";
+
 import {
   AddProductPage,
   AdminOrdersPage,
@@ -26,11 +28,11 @@ import {
   UserProfilePage,
   WishlistPage
 } from './pages';
+
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
 function App() {
-
   const isAuthChecked = useSelector(selectIsAuthChecked);
   const loggedInUser = useSelector(selectLoggedInUser);
 
@@ -40,7 +42,7 @@ function App() {
   const routes = createBrowserRouter(
     createRoutesFromElements(
       <>
-        {/* ✅ Add default redirection route here */}
+        {/* ✅ Default redirection route */}
         <Route path='/' element={
           loggedInUser?.isAdmin ? (
             <Navigate to='/admin/dashboard' />
@@ -51,28 +53,33 @@ function App() {
           )
         } />
 
-        {/* Auth & Password Routes */}
+        {/* Auth Routes */}
         <Route path='/signup' element={<SignupPage />} />
         <Route path='/login' element={<LoginPage />} />
         <Route path='/verify-otp' element={<OtpVerificationPage />} />
         <Route path='/forgot-password' element={<ForgotPasswordPage />} />
         <Route path='/reset-password/:userId/:passwordResetToken' element={<ResetPasswordPage />} />
-        <Route path='/logout' element={<Protected><Logout /></Protected>} />
+
+        {/* Public Product Details */}
         <Route path='/product-details/:id' element={<Protected><ProductDetailsPage /></Protected>} />
+        <Route path='/logout' element={<Protected><Logout /></Protected>} />
 
         {/* Admin Routes */}
         {
-          loggedInUser?.isAdmin ? (
+          loggedInUser?.isAdmin && (
             <>
               <Route path='/admin/dashboard' element={<Protected><AdminDashboardPage /></Protected>} />
               <Route path='/admin/product-update/:id' element={<Protected><ProductUpdatePage /></Protected>} />
               <Route path='/admin/add-product' element={<Protected><AddProductPage /></Protected>} />
               <Route path='/admin/orders' element={<Protected><AdminOrdersPage /></Protected>} />
-              <Route path='*' element={<Navigate to='/admin/dashboard' />} />
             </>
-          ) : (
+          )
+        }
+
+        {/* User Routes */}
+        {
+          loggedInUser && !loggedInUser?.isAdmin && (
             <>
-              {/* User Routes */}
               <Route path='/home' element={<Protected><HomePage /></Protected>} />
               <Route path='/cart' element={<Protected><CartPage /></Protected>} />
               <Route path='/profile' element={<Protected><UserProfilePage /></Protected>} />
